@@ -9,12 +9,12 @@ export class UserSnapshot {
     /**
      * 去用户索引表里获取的 ID
      */
-    @Column({ name: 'user_index_id' })
+    @Column({ type: 'varchar', name: 'user_id', nullable: false })
     @Index()
-    user_index_id!: number;
+    user_id!: string;
 
     @ManyToOne(() => User)
-    @JoinColumn({ name: 'user_index_id' })
+    @JoinColumn({ name: 'user_id' })
     user!: User;
 
     /**

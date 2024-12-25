@@ -29,12 +29,12 @@ export type TopicStatisticFeature = {
     /**
      * 即接口数据中的 update_time 字段
      */
-    last_reply_time: Date;
+    topic_last_updated_at: Date;
     /**
      * 如果帖子不存在对应的 edit 时间信息
      * 那么说明帖子没有被编辑过
      * 此时，last_edit_time 应该与 create_time 相同
      */
-    last_edit_time: Date;
-    topic_create_time: Date;
+    topic_last_edited_at: Date;
+    topic_created_at: Date;
 }

@@ -1,4 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, OneToMany } from 'typeorm';
+import { TopicStatSnapshot } from './TopicStatSnapshot.ts';
+import { TopicContentSnapshot } from './TopicContentSnapshot.ts';
 
 @Entity({ name: 'topics' })
 export class Topic {
@@ -9,9 +11,15 @@ export class Topic {
      * 豆瓣话题的唯一标识符
      * @maxLength 255
      */
-    @Column({ type: 'varchar', length: 255, name: 'topic_id', nullable: false })
+    @Column({ type: 'varchar',length:255, name: 'topic_id', nullable: false })
     @Index()
     topic_id!: string;
+
+    @OneToMany(() => TopicStatSnapshot,(topicStatSnapshot) => topicStatSnapshot.topic_id,{lazy:true})
+    topic_stat_snapshots!: TopicStatSnapshot[];
+
+    @OneToMany(() => TopicContentSnapshot,(topicContentSnapshot) => topicContentSnapshot.topic_id,{lazy:true})
+    topic_content_snapshots!: TopicContentSnapshot[];
 
     /**
      * 所属小组ID
@@ -34,6 +42,9 @@ export class Topic {
      */
     @Column({ type: 'timestamp', name: 'topic_last_edited_at', nullable: true })
     topic_last_edited_at!: Date;
+
+    @Column({ type: 'timestamp', name: 'topic_last_updated_at', nullable: true })
+    topic_last_updated_at!: Date;
 
     @CreateDateColumn({ type: 'timestamp', name: 'record_created_at' })
     record_created_at!: Date;

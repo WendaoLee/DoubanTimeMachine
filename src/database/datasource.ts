@@ -4,9 +4,9 @@ import { DATABASE_TYPE, DATABASE_HOST, DATABASE_PORT, DATABASE_USERNAME, DATABAS
 import { Topic } from "./entity/Topic.ts"
 import { TopicContentSnapshot } from "./entity/TopicContentSnapshot.ts"
 import { TopicStatSnapshot } from "./entity/TopicStatSnapshot.ts"
+import { User } from './entity/User.ts'
 import { UserSnapshot } from "./entity/UserSnapshot.ts"
 import { Reply } from './entity/Reply.ts'
-import { User } from './entity/User.ts'
 
 
 /**

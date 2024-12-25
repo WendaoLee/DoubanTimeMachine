@@ -10,12 +10,11 @@ export class TopicContentSnapshot {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column({ type: 'int', name: 'topic_index_id' })
+    @Column({ type: 'varchar', length:255, name: 'topic_id', nullable: false })
     @Index()
-    topic_index_id!: number;
+    topic_id!: string;
 
-    @ManyToOne(() => Topic)
-    @JoinColumn({ name: 'topic_index_id' })
+    @ManyToOne(() => Topic,(topic) => topic.topic_id)
     topic!: Topic;
 
 

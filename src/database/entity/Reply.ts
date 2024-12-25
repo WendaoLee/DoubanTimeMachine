@@ -7,12 +7,12 @@ export class Reply {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column({ name: 'topic_index_id' })
+    @Column({ type: 'varchar', name: 'topic_id', nullable: false })
     @Index()
-    topic_index_id!: number;
+    topic_id!: string;
 
     @ManyToOne(() => Topic)
-    @JoinColumn({ name: 'topic_index_id' })
+    @JoinColumn({ name: 'topic_id' })
     topic!: Topic;
 
     @Column({ name: 'user_id' })
