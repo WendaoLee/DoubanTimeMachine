@@ -1,16 +1,17 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
-import { Topic } from './Topic.ts';
+import type { Topic } from './Topic.ts';
 
 @Entity({ name: 'topic_stat_snapshots' })
 export class TopicStatSnapshot {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column({ type: 'varchar', length:255, name: 'topic_id', nullable: false })
-    @Index()
-    topic_id!: string;
+    // @Column({ type: 'varchar', length:255, name: 'topic_id', nullable: false })
+    // @Index()
+    // topic_id!: string;
 
-    @ManyToOne(() => Topic,(topic) => topic.topic_id)
+    @ManyToOne('Topic',(topic:Topic) => topic.topic_id)
+    @JoinColumn({ name: 'topic_id',referencedColumnName: 'topic_id' })
     topic!: Topic;
 
     /**

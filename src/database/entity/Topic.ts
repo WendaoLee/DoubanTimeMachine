@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, OneToMany } from 'typeorm';
 import { TopicStatSnapshot } from './TopicStatSnapshot.ts';
 import { TopicContentSnapshot } from './TopicContentSnapshot.ts';
+import { Reply } from './Reply.ts';
 
 @Entity({ name: 'topics' })
 export class Topic {
@@ -15,11 +16,14 @@ export class Topic {
     @Index()
     topic_id!: string;
 
-    @OneToMany(() => TopicStatSnapshot,(topicStatSnapshot) => topicStatSnapshot.topic_id,{lazy:true})
+    @OneToMany(() => TopicStatSnapshot,(topicStatSnapshot) => topicStatSnapshot.topic)
     topic_stat_snapshots!: TopicStatSnapshot[];
 
-    @OneToMany(() => TopicContentSnapshot,(topicContentSnapshot) => topicContentSnapshot.topic_id,{lazy:true})
+    @OneToMany(() => TopicContentSnapshot,(topicContentSnapshot) => topicContentSnapshot.topic)
     topic_content_snapshots!: TopicContentSnapshot[];
+
+    @OneToMany(() => Reply,(reply) => reply.topic)
+    replies!: Reply[];
 
     /**
      * 所属小组ID
@@ -36,15 +40,6 @@ export class Topic {
 
     @Column({ type: 'varchar', length: 255, name: 'author_id' })
     author_id!: string;
-
-    /**
-     * 帖子的最后编辑时间
-     */
-    @Column({ type: 'timestamp', name: 'topic_last_edited_at', nullable: true })
-    topic_last_edited_at!: Date;
-
-    @Column({ type: 'timestamp', name: 'topic_last_updated_at', nullable: true })
-    topic_last_updated_at!: Date;
 
     @CreateDateColumn({ type: 'timestamp', name: 'record_created_at' })
     record_created_at!: Date;

@@ -63,7 +63,7 @@ interface Author {
     uid: string
     id: string
     name: string
-  };
+  } | null;
   /**
    * 是否被永久封禁
    */

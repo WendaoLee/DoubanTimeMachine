@@ -7,7 +7,7 @@ import { GroupTopicAPIResponse } from "@/types/GroupTopic.ts";
  * @param groupId 小组ID
  * @returns 帖子数据
  */
-export const getGroupTopics = (groupId:string) => Effect.Do.pipe(
+export const getGroupTopicsAPIResponse = (groupId:string) => Effect.Do.pipe(
     Effect.let('api',()=>`https://frodo.douban.com/api/v2/group/${groupId}/topics`),
     Effect.bind('params',({api}) => getEncrypedParamsByDefaultEnv(api,'GET')),
     Effect.bind('result',({api,params}) => doubanFetch<GroupTopicAPIResponse>(api,params)),
@@ -15,20 +15,24 @@ export const getGroupTopics = (groupId:string) => Effect.Do.pipe(
 )
 
 
-export const getGroup = (groupId:string) => Effect.Do.pipe(
+export const getGroupMetaData = (groupId:string) => Effect.Do.pipe(
     Effect.let('api',()=>`https://frodo.douban.com/api/v2/group/${groupId}`),
     Effect.bind('params',({api}) => getEncrypedParamsByDefaultEnv(api,'GET')),
-    Effect.bind('result',({api,params}) => doubanFetch<GroupTopicAPIResponse>(api,params)),
+    Effect.bind('result',({api,params}) => doubanFetch<GroupMetaData>(api,params)),
     Effect.map(({result}) => result)
 )
 
 
 import { fileURLToPath } from "url";
 import path from "path";
+import { GroupMetaData } from "@/types/Group.ts";
 
 if(fileURLToPath(import.meta.url) === path.resolve(process.argv[1]) || process.argv[1].includes('quokka-vscode')){
     console.warn(`正在运行单个文件的 run - test，它仅用于单独文件运行与 Quokkajs 调试。如果这是在生产环境下出现该日志，请检查是否出现了问题//文件路径:${fileURLToPath(import.meta.url)}`)
-    const result = await Effect.runPromise(getGroup('728957'))
-    const result2 = await Effect.runPromise(getGroupTopics('728957'))
+    // const result = await Effect.runPromise(getGroup('728957'))
+    console.time('getGroup')
+    const result2 = await Effect.runPromise(getGroupTopicsAPIResponse('728957'))
+    console.timeEnd('getGroup')
+    console.log(result2)
 }
 

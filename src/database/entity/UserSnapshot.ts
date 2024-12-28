@@ -7,21 +7,24 @@ export class UserSnapshot {
     id!: number;
 
     /**
-     * 去用户索引表里获取的 ID
+     * 去用户索引表里获取的 uid
      */
-    @Column({ type: 'varchar', name: 'user_id', nullable: false })
+    @Column({ type: 'varchar', name: 'user_uid', nullable: false,charset:'utf8mb4' })
     @Index()
-    user_id!: string;
+    user_uid!: string;
 
-    @ManyToOne(() => User)
-    @JoinColumn({ name: 'user_id' })
+    /**
+     * 由于用户的 uid 可以自定义改变，因此此处使用 douban_id 来关联用户
+     */
+    @ManyToOne('User',(user:User) => user.douban_id)
+    @JoinColumn({ name: 'user_id',referencedColumnName:'douban_id' })
     user!: User;
 
     /**
      * 用户名称
      * @maxLength 255
      */
-    @Column({ type: 'varchar', length: 255, name: 'name', nullable: true })
+    @Column({ type: 'varchar', length: 255, name: 'name', nullable: true,charset:'utf8mb4' })
     name!: string;
 
     /**

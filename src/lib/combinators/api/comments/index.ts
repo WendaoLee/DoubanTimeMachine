@@ -52,12 +52,6 @@ export const fetchAllTopicComments = (topicId:string) => Effect.gen(function* ()
  * 传入帖子id以及起始评论数，获取剩余的评论数
  * @param topicId 帖子id
  * @param start 起始评论数
- * @returns 
- */
-/**
- * 传入帖子id以及起始评论数，获取剩余的评论数
- * @param topicId 帖子id
- * @param start 起始评论数
  * @returns 所有剩余的评论
  */
 export const fetchRemainedTopicComments = (topicId: string, start: number) => Effect.gen(function* () {

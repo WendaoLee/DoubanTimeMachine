@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, OneToMany } from 'typeorm';
+import { UserSnapshot } from './UserSnapshot.ts';
 
 /**
  * 提供所有用户的索引信息
@@ -12,7 +13,7 @@ export class User {
      * 豆瓣用户的唯一标识符
      * @maxLength 255
      */
-    @Column({ type: 'varchar', length: 255, name: 'douban_id', nullable: false })
+    @Column({ type: 'varchar', length: 255, name: 'douban_id', nullable: false,charset:'utf8mb4' })
     @Index()
     douban_id!: string;
 
@@ -20,9 +21,12 @@ export class User {
      * UID 是可能发生变化的。
      * 此处记录 UID 是为了方便查询。
      */
-    @Column({ type: 'varchar', length: 255, name: 'douban_uid', nullable: true })
+    @Column({ type: 'varchar', length: 255, name: 'douban_uid', nullable: true,charset:'utf8mb4' })
     @Index()
     douban_uid!: string;
+
+    @OneToMany(() => UserSnapshot, (userSnapshot) => userSnapshot.user)
+    userSnapshots!: UserSnapshot[];
 
     /**
      * 用户的注册时间

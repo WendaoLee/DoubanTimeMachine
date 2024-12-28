@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
-import { Topic } from './Topic.ts';
+import type { Topic } from './Topic.ts';
 import type { TopicAPIResponse } from '@/types/Topic.ts';
 
 /**
@@ -10,24 +10,25 @@ export class TopicContentSnapshot {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column({ type: 'varchar', length:255, name: 'topic_id', nullable: false })
-    @Index()
-    topic_id!: string;
+    // @Column({ type: 'varchar', length:255, name: 'topic_id', nullable: false })
+    // @Index()
+    // topic_id!: string;
 
-    @ManyToOne(() => Topic,(topic) => topic.topic_id)
+    @ManyToOne('Topic',(topic:Topic) => topic.topic_id)
+    @JoinColumn({ referencedColumnName: 'topic_id',name: 'topic_id' })
     topic!: Topic;
 
 
     /**
      * 帖子内容
      */
-    @Column({ type: 'longtext', name: 'content' })
+    @Column({ type: 'longtext', name: 'content',charset:'utf8mb4' })
     content!: string;
 
-    @Column({ type: 'varchar', length: 255, name: 'title' })
+    @Column({ type: 'varchar', length: 255, name: 'title',charset:'utf8mb4' })
     title!: string;
 
-    @Column({ type: 'varchar', length: 255, name: 'author_uid' })
+    @Column({ type: 'varchar', length: 255, name: 'author_uid',charset:'utf8mb4' })
     author_uid!: string;
 
     @Column({ type: 'varchar', length: 255, name: 'author_id' })

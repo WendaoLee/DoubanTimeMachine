@@ -9,3 +9,4 @@ dotenv.config();
 
 export const DOUBAN_API_KEY = throwErrorIsEnvNotConfigured(process.env.DOUBAN_API_KEY, 'DOUBAN_API_KEY');
 export const DOUBAN_API_SECRET = throwErrorIsEnvNotConfigured(process.env.DOUBAN_API_SECRET, 'DOUBAN_API_SECRET');
+export const DOUBAN_GROUP_ID = throwErrorIsEnvNotConfigured(process.env.DOUBAN_GROUP_ID, 'DOUBAN_GROUP_ID');

@@ -6,6 +6,7 @@ import type { GroupTopicAPITopicInfo } from "@/types/GroupTopic.ts";
  * - 如果对应帖子不存在，需要同时新建 Topic 和 TopicStatSnapshot 的记录，因此需要有比较多的信息
  */
 export type TopicStatisticFeature = {
+    _tag_:"topic_statistic_feature"
     topic_id: string;
     group_id: string;
     author_uid: string;

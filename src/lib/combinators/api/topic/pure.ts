@@ -6,6 +6,7 @@ import { TopicAPIResponse } from "@/types/Topic.ts"
 export const mapTopicAPITopicInfoToTopicStatisticFeature = (topicInfo:TopicAPIResponse):TopicStatisticFeature => {
     const { id,reshares_count,reactions_count,update_time,comments_count,group,create_time,collections_count,edit_time,author} = topicInfo
     return {
+        _tag_: 'topic_statistic_feature',
         topic_id: id,
         group_id: group.id,
         author_uid: author.uid,
@@ -23,6 +24,7 @@ export const mapTopicAPITopicInfoToTopicStatisticFeature = (topicInfo:TopicAPIRe
 export const mapTopicAPITopicInfoToTopicContentFeature = (topicInfo:TopicAPIResponse):TopicContentFeature => {
     const { id,content,title,author,create_time,update_time,edit_time,group} = topicInfo
     return {
+        _tag_: 'topic_content_feature',
         topic_id: id,
         content: content,
         title: title,

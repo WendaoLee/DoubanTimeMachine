@@ -4,6 +4,7 @@ import { TopicAPIResponse } from "../Topic.ts"
  * 帖子内容快照特征
  */
 export type TopicContentFeature = {
+    _tag_:"topic_content_feature"
     topic_id:string
     group_id:string
     author_uid:string

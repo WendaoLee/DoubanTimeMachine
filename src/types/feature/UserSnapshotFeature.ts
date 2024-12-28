@@ -7,7 +7,7 @@ export type DoubanUserGender = 'M' | 'F' | 'U';
 /**
  * 从 @type {GroupTopicAPITopicInfo,DoubanComment} 中可以提取出用户信息特征
  */
-export type UserInfoFeature = {
+export type UserSnapshotFeature = {
     douban_id: string;
     douban_uid: string;
     name: string;
@@ -15,13 +15,13 @@ export type UserInfoFeature = {
     gender: DoubanUserGender;
     user_created_at: Date;
     user_avatar_url: string;
-    location?:{
+    location:{
         uid: string;
         id: string;
         /**
          * 位置的中文名
          */
         name: string;
-    },
+    } | null,
     metadata: GroupTopicAPITopicInfo['author']
 }
