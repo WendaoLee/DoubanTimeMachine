@@ -2,6 +2,7 @@ import { Effect } from "effect";
 import { doubanFetch,getEncrypedParamsByDefaultEnv } from "@/lib/combinators/utils/index.ts";
 import { CommentsResponse,DoubanComment as DoubanComment } from "@/types/Comments.ts";
 import { COMMON_PARAMS } from "./constants.ts";
+import { writeFileSync } from "node:fs";
 
 /**
  * 获取一个帖子的评论
@@ -94,6 +95,6 @@ export const fetchRemainedTopicComments = (topicId: string, start: number) => Ef
 })
 
 
-// const result = await Effect.runPromise(fetchRemainedTopicComments("266788909",200))
-// console.log(result)
+const result = await Effect.runPromise(fetchAllTopicComments("266788909"))
+writeFileSync('./comments.json',JSON.stringify(result,null,2))
 

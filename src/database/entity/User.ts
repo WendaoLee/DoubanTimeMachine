@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, OneToMany } from 'typeorm';
 import { UserSnapshot } from './UserSnapshot.ts';
+import type { Comments } from './comments.ts';
 
 /**
  * 提供所有用户的索引信息
@@ -27,6 +28,9 @@ export class User {
 
     @OneToMany(() => UserSnapshot, (userSnapshot) => userSnapshot.user)
     userSnapshots!: UserSnapshot[];
+
+    @OneToMany('Comments',(comment:Comments) => comment.user)
+    comments!: Comments[];
 
     /**
      * 用户的注册时间

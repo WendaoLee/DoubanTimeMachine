@@ -1,26 +1,32 @@
 import { Effect } from "effect"
-import { createTopicIndexRecordIfNotExist,upsertTopicStatisticSnapshot,upsertTopicContentSnapshot } from "./topic/effect.ts"
+import { upsertTopicIndexRecordIfNotExist,upsertTopicStatisticSnapshot,upsertTopicContentSnapshot } from "./topic/effect.ts"
 import { TopicStatisticFeature } from "@/types/feature/TopicStatisticFeature.ts"
 import { TopicContentFeature } from "@/types/feature/TopicContentFeature.ts"
 import { createUserIndexRecordIfNotExist, upsertUserSnapshotRecordIfNotExist } from "./user/effect.ts"
 import { UserSnapshotFeature } from "@/types/feature/UserSnapshotFeature.ts"
 import { fileURLToPath } from "url"
 import path from "path"
+import { upsertReplyRecordFromCommentFeature } from "./comments/effect.ts"
+import { CommentFeature } from "@/types/feature/CommentFeature.ts"
 
 
 export const processTopicStatistcSnapshot = (topicStatisticFeature:TopicStatisticFeature) => 
     Effect.Do.pipe(
-        Effect.bind('topicIndexRecord',() => createTopicIndexRecordIfNotExist(topicStatisticFeature)),
+        Effect.bind('topicIndexRecord',() => upsertTopicIndexRecordIfNotExist(topicStatisticFeature)),
         Effect.bind('topicStatisticSnapshot',() => upsertTopicStatisticSnapshot(topicStatisticFeature)),
         Effect.map(({topicIndexRecord,topicStatisticSnapshot}) => ({
+            topicIndexRecord,
+            topicStatisticSnapshot
         }))
     )
 
 export const processTopicContentSnapshot = (topicContentFeature:TopicContentFeature) => 
     Effect.Do.pipe(
-        Effect.bind('topicIndexRecord',() => createTopicIndexRecordIfNotExist(topicContentFeature)),
+        Effect.bind('topicIndexRecord',() => upsertTopicIndexRecordIfNotExist(topicContentFeature)),
         Effect.bind('topicContentSnapshot',() => upsertTopicContentSnapshot(topicContentFeature)),
         Effect.map(({topicIndexRecord,topicContentSnapshot}) => ({
+            topicIndexRecord,
+            topicContentSnapshot
         }))
     )
 
@@ -32,6 +38,8 @@ export const processUserSnapshot = (userSnapshotFeature:UserSnapshotFeature) =>
         Effect.map(({userIndexRecord,userSnapshot}) => ({
         }))
     )
+
+export const processCommentFeature = (commentFeature:CommentFeature) => upsertReplyRecordFromCommentFeature(commentFeature)
 
 // if(fileURLToPath(import.meta.url) === path.resolve(process.argv[1]) || process.argv[1].includes('quokka-vscode')){
 //     console.warn(`正在运行单个文件的 run - test，它仅用于单独文件运行与 Quokkajs 调试。如果这是在生产环境下出现该日志，请检查是否出现了问题//文件路径:${fileURLToPath(import.meta.url)}`)

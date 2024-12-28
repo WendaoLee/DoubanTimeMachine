@@ -16,7 +16,7 @@ import { handleTypeORMErrorWithFucInfo } from "@/types/error/TypeORMWrappedError
  * @param topicFeatureData 
  * @returns 
  */
-export const createTopicIndexRecordIfNotExist = (topicFeatureData:TopicContentFeature | TopicStatisticFeature) => 
+export const upsertTopicIndexRecordIfNotExist = (topicFeatureData:TopicContentFeature | TopicStatisticFeature) => 
     Effect.tryPromise({
         try:async () => {
             if(!GeneralContentDatasource.isInitialized){
@@ -24,10 +24,11 @@ export const createTopicIndexRecordIfNotExist = (topicFeatureData:TopicContentFe
             }
             const topicId = topicFeatureData.topic_id
 
-            const exitedTopic = await GeneralContentDatasource.getRepository(Topic).findOne({where:{topic_id:topicId}})
+            const exitedTopic = await GeneralContentDatasource.getRepository(Topic).findOne({where:{topic_id:topicId},cache:true})
 
             if(exitedTopic){
-                return exitedTopic
+                exitedTopic.last_reply_at = new Date(topicFeatureData.topic_last_updated_at)
+                return await GeneralContentDatasource.getRepository(Topic).save(exitedTopic)
             }
 
             const newTopic = new Topic()
@@ -36,6 +37,7 @@ export const createTopicIndexRecordIfNotExist = (topicFeatureData:TopicContentFe
             newTopic.topic_created_at = new Date(topicFeatureData.topic_created_at)
             newTopic.author_uid = topicFeatureData.author_uid
             newTopic.author_id = topicFeatureData.author_id
+            newTopic.last_reply_at = new Date(topicFeatureData.topic_last_updated_at)
 
             return await GeneralContentDatasource.getRepository(Topic).save(newTopic)
         },

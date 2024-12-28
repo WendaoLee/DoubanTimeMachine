@@ -24,6 +24,7 @@ const getLogger = (logFilePath: string) => {
         maxFiles: 3,              // 保留3个文件
         tailable: true,            // 允许追加到旧文件
         zippedArchive: true,       // 压缩旧日志
+        level:'debug',
         rotationFormat: () => {
             const date = new Date()
             return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`

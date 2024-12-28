@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, OneToMany } from 'typeorm';
 import { TopicStatSnapshot } from './TopicStatSnapshot.ts';
 import { TopicContentSnapshot } from './TopicContentSnapshot.ts';
-import { Reply } from './Reply.ts';
+import { Comments } from './comments.ts';
 
 @Entity({ name: 'topics' })
 export class Topic {
@@ -22,8 +22,8 @@ export class Topic {
     @OneToMany(() => TopicContentSnapshot,(topicContentSnapshot) => topicContentSnapshot.topic)
     topic_content_snapshots!: TopicContentSnapshot[];
 
-    @OneToMany(() => Reply,(reply) => reply.topic)
-    replies!: Reply[];
+    @OneToMany(() => Comments,(comment) => comment.topic)
+    comments!: Comments[];
 
     /**
      * 所属小组ID
@@ -40,6 +40,9 @@ export class Topic {
 
     @Column({ type: 'varchar', length: 255, name: 'author_id' })
     author_id!: string;
+
+    @Column({ type: 'timestamp', name: 'last_reply_at',nullable:true })
+    last_reply_at!: Date;
 
     @CreateDateColumn({ type: 'timestamp', name: 'record_created_at' })
     record_created_at!: Date;

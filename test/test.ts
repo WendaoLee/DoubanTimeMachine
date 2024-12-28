@@ -11,6 +11,14 @@ const t =  Effect.gen(function*(){
     return userSnapshot
 })
 
+const g = Effect.gen(function*(){
+    console.log('1')
+    const userSnapshotFeatures = yield* getUserSnapshotFeatureByGroupAPI('728957')
+    const effOfProcessUserSnapshot = userSnapshotFeatures.map(processUserSnapshot)
+    const userSnapshot = yield* Effect.all(effOfProcessUserSnapshot)
+    return userSnapshot
+})
+
 const eff = Effect.Do.pipe(
     Effect.bind('userSnapshotFeature',() => getUserSnapshotFeatureByGroupAPI('728957')),
     Effect.let('nothio',()=>{console.log('1')}),

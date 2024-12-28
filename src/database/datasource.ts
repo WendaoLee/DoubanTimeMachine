@@ -5,7 +5,7 @@ import { Topic } from "./entity/Topic.ts"
 import { TopicContentSnapshot } from "./entity/TopicContentSnapshot.ts"
 import { TopicStatSnapshot } from "./entity/TopicStatSnapshot.ts"
 import { UserSnapshot } from "./entity/UserSnapshot.ts"
-import { Reply } from './entity/Reply.ts'
+import { Comments } from './entity/comments.ts'
 import { User } from './entity/User.ts'
 
 
@@ -23,8 +23,10 @@ export const GeneralContentDatasource = new DataSource({
      * 生产环境应当切换为 false
      */
     synchronize: true,
-    entities: [Topic,TopicContentSnapshot,TopicStatSnapshot,UserSnapshot,Reply,User],
-    cache:true,
+    entities: [Topic,TopicContentSnapshot,TopicStatSnapshot,UserSnapshot,Comments,User],
+    cache:{
+        duration:3000
+    },
     poolsize:20,
     migrations: [],
     charset: 'utf8mb4',

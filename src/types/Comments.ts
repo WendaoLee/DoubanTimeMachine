@@ -25,6 +25,28 @@ interface Author {
   avatar: string;
 }
 
+interface ImageSize {
+  url: string;
+  width: number;
+  height: number;
+}
+
+interface Image {
+  large: ImageSize;
+  normal: ImageSize;
+  is_animated: boolean;
+}
+
+interface Photo {
+  origin: boolean;
+  description: string;
+  watermark: any | null;
+  image: Image;
+  tag_name: string;
+  id: string;
+}
+
+
 export interface DoubanComment {
   reaction_type: number;
   is_censoring: boolean;
@@ -34,11 +56,16 @@ export interface DoubanComment {
   text: string;
   is_disabled: boolean;
   uri: string;
-  photos: any[];
+  photos: Photo[];
+  /**
+   * 点赞数
+   * 头疼，不是很想做这个东东的快照。
+   */
   vote_count: number;
   create_time: string;
   ip_location: string;
   id: string;
+  ref_comment?:DoubanComment | null
 }
 
 /**
