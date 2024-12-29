@@ -11,7 +11,7 @@ import { UserSnapshotFeature } from "@/types/feature/UserSnapshotFeature.ts";
 export const mapDoubanCommentToUserSnapshotFeature = (comment:DoubanComment):UserSnapshotFeature => {
     return {
         douban_id:comment.author.id,
-        douban_uid:comment.author.id,
+        douban_uid:comment.author.uid,
         name:comment.author.name,
         avatar:comment.author.avatar,
         gender:comment.author.gender,
