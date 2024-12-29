@@ -96,3 +96,16 @@ export const getUserAllComments = (userUID:string) => Effect.tryPromise({
     },
     catch:handleTypeORMErrorWithFucInfo('lib.combinators.database.reply.effect.getUserAllComments')
 })
+
+export const getUserAllCommentsByDoubanID = (doubanID:string) => Effect.tryPromise({
+    try:async () => {
+        const user = await GeneralContentDatasource.getRepository(User).findOne({where:{douban_id:doubanID}})
+        if(!user){
+            return []
+        }
+        return await GeneralContentDatasource.getRepository(Comments).find({where:{user_uid:user.douban_uid},relations:{
+            topic:true
+        }})
+    },
+    catch:handleTypeORMErrorWithFucInfo('lib.combinators.database.reply.effect.getUserAllCommentsByDoubanID')
+})

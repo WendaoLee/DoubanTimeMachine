@@ -10,7 +10,7 @@ const program = Effect.gen(function*(){
      */
     app.listen(2011,() => {
         console.log('Server is running on port 2011')
-        dataService.startCrawler()
+        // dataService.startCrawler()
     })
 }).pipe(
     Effect.provide(DataServiceLive)

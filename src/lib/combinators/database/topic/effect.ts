@@ -11,6 +11,7 @@ import { handleTypeORMError } from "@/types/error/TypeORMWrappedError.ts";
 import { handleTypeORMErrorWithFucInfo } from "@/types/error/TypeORMWrappedError.ts";
 import { fileURLToPath } from "url";
 import path from "path";
+import { User } from "@/database/entity/User.ts";
 
 /**
  * 传入帖子相关的特征数据，新建对应的 Topic 索引记录
@@ -243,6 +244,7 @@ export const getLatestTopicInfo = (limit:number) =>
                         .getQuery();
                     return 'stat_snapshot.snapshot_at = ' + statSubQuery;
                 })
+                .groupBy('topic.id, topic.topic_id, topic.group_id, topic.topic_created_at, topic.author_uid, topic.author_id, topic.last_reply_at, content_snapshot.id, stat_snapshot.id')
                 .orderBy('topic.last_reply_at', 'DESC')
                 .limit(limit)
                 .cache(true)
@@ -312,7 +314,57 @@ export const getLatestTopicInfoByUserUID = (userUID:string) => Effect.tryPromise
     catch:handleTypeORMErrorWithFucInfo('lib.combinators.database.topic.getLatestTopicInfoByUserUID')
 })
 
+export const getLatestTopicInfoByUserDoubanID = (doubanID:string) => Effect.tryPromise({
+    try:async () => {
+        if(!GeneralContentDatasource.isInitialized){
+            await GeneralContentDatasource.initialize()
+        }
+
+        const reuslt = await GeneralContentDatasource
+            .getRepository(Topic)
+            .createQueryBuilder('topic')
+            .leftJoinAndSelect('topic.topic_content_snapshots', 'content_snapshot')
+            .leftJoinAndSelect('topic.topic_stat_snapshots', 'stat_snapshot')
+            .where('topic.author_id = :doubanID', { doubanID })
+            .andWhere(qb => {
+                const contentSubQuery = qb
+                    .subQuery()
+                    .select('MAX(cs.snapshot_at)')
+                    .from(TopicContentSnapshot, 'cs')
+                    .where('cs.topic_id = content_snapshot.topic_id')
+                    .getQuery();
+                return 'content_snapshot.snapshot_at = ' + contentSubQuery;
+            })
+            .andWhere(qb => {
+                const statSubQuery = qb
+                    .subQuery()
+                    .select('MAX(ss.snapshot_at)')
+                    .from(TopicStatSnapshot, 'ss')
+                    .where('ss.topic_id = stat_snapshot.topic_id')
+                    .getQuery();
+                return 'stat_snapshot.snapshot_at = ' + statSubQuery;
+            })
+            .orderBy('topic.last_reply_at', 'DESC')
+            .cache(true)
+            .getMany();
+
+            return Array.from(reuslt.reduce((acc, curr) => {
+                // 如果 Map 中不存在该 topic_id 或者当前记录的 last_reply_at 更新，则更新 Map
+                const existingTopic = acc.get(curr.topic_id)
+                if (!existingTopic || curr.last_reply_at > existingTopic.topic.last_reply_at) {
+                    acc.set(curr.topic_id, {
+                        topic: curr,
+                        content_snapshot: curr.topic_content_snapshots[0],
+                        stat_snapshot: curr.topic_stat_snapshots[0]
+                    })
+                }
+                return acc
+            }, new Map()).values()) as Topic[]
+    },
+    catch:handleTypeORMErrorWithFucInfo('lib.combinators.database.topic.getLatestTopicInfoByUserDoubanID')
+})
+
 if(fileURLToPath(import.meta.url) === path.resolve(process.argv[1]) || process.argv[1].includes('quokka-vscode')){
-    const result = await Effect.runPromise(getLatestTopicInfoByUserUID('Beeeella0717'))
+    const result = await Effect.runPromise(getLatestTopicInfo(20))
     console.log(result)
 }

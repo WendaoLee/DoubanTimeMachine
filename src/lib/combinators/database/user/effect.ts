@@ -121,6 +121,17 @@ export const getUserSnapshotsByDoubanUID = (doubanUID:string) => Effect.tryPromi
     catch:handleTypeORMError
 })
 
+export const getUserSnapshotsByDoubanID = (doubanID:string) => Effect.tryPromise({
+    try:async () => {
+        if(!GeneralContentDatasource.isInitialized){
+            await GeneralContentDatasource.initialize()
+        }
+
+        return await GeneralContentDatasource.getRepository(UserSnapshot).find({where:{user:{douban_id:doubanID}}})
+    },
+    catch:handleTypeORMError
+})
+
 export const getUserLatestSnapshotByDoubanUID = (doubanUID:string) => Effect.tryPromise({
     try:async () => {
         if(!GeneralContentDatasource.isInitialized){
