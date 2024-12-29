@@ -24,8 +24,13 @@ export const GeneralContentDatasource = new DataSource({
      */
     synchronize: true,
     entities: [Topic,TopicContentSnapshot,TopicStatSnapshot,UserSnapshot,Comments,User],
+    /**
+     * note: 使用 database 缓存会出现缓存的 result 是 text，导致部分数据获取时建造缓存失败。
+     * 因此需要手动更改对应的字段为 longtext
+     */
     cache:{
-        duration:3000
+        duration:3000,
+        type:'database',
     },
     poolsize:20,
     migrations: [],

@@ -39,6 +39,8 @@ const getLogger = (logFilePath: string) => {
     })
 }
 
+export const defaultAPILogger = getLogger('./logs/api.log')
+
 /**
  * 用于指明不同层级的日志输出到哪一层日志中。
  * 如果希望所有日志都输出到同一个文件中，则可以设置为相同的文件路径。

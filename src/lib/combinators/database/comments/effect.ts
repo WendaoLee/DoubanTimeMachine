@@ -61,3 +61,38 @@ export const getTargetTopicCommentsCount = (topicId:string) => Effect.tryPromise
     },
     catch:handleTypeORMErrorWithFucInfo('lib.combinators.database.reply.effect.getTargetTopicCommentsCount')
 })
+
+/**
+ * 获取指定话题的所有评论
+ * @param topicId 话题 id
+ * @returns 评论列表
+ */
+export const getTargetTopicAllComments = (topicId:string) => Effect.tryPromise({
+    try:async () => {
+        if(!GeneralContentDatasource.isInitialized){
+            await GeneralContentDatasource.initialize()
+        }
+
+        return await GeneralContentDatasource.getRepository(Comments).find({where:{
+            topic:{topic_id:topicId}
+        }})
+    },
+    catch:handleTypeORMErrorWithFucInfo('lib.combinators.database.reply.effect.getTargetTopicComments')
+})
+
+/**
+ * 获取指定 UID 的用户发表过的所有评论
+ * @param userUID 用户 UID
+ * @returns 评论列表
+ */
+export const getUserAllComments = (userUID:string) => Effect.tryPromise({
+    try:async () => {
+        if(!GeneralContentDatasource.isInitialized){
+            await GeneralContentDatasource.initialize()
+        }
+        return await GeneralContentDatasource.getRepository(Comments).find({where:{user_uid:userUID},relations:{
+            topic:true
+        }})
+    },
+    catch:handleTypeORMErrorWithFucInfo('lib.combinators.database.reply.effect.getUserAllComments')
+})

@@ -26,7 +26,7 @@ export const upsertTopicIndexRecordIfNotExist = (topicFeatureData:TopicContentFe
             }
             const topicId = topicFeatureData.topic_id
 
-            const exitedTopic = await GeneralContentDatasource.getRepository(Topic).findOne({where:{topic_id:topicId},cache:true})
+            const exitedTopic = await GeneralContentDatasource.getRepository(Topic).findOne({where:{topic_id:topicId}})
 
             if(exitedTopic){
                 exitedTopic.last_reply_at = new Date(topicFeatureData.topic_last_updated_at)
@@ -151,11 +151,45 @@ export const upsertTopicContentSnapshot = (topicContentFeature:TopicContentFeatu
     })
 
 /**
- * 获取最新 XX 条的帖子对应的快照记录
+ * 获取最新被回复的 XX 条的帖子以及对应的快照记录
  * @param limit 
  * @returns 
  */
-export const getLatestTopicContentSnapshot = (limit:number) => 
+export const getLatestTopicContentSnapshotWithTopicIndex = (limit:number) => 
+    Effect.tryPromise({
+        try:async () => {
+            if(!GeneralContentDatasource.isInitialized){
+                await GeneralContentDatasource.initialize()
+            }
+
+            return await GeneralContentDatasource
+                .getRepository(Topic)
+                .createQueryBuilder('topic')
+                .leftJoinAndSelect('topic.topic_content_snapshots', 'content_snapshot')
+                .where(qb => {
+                    const subQuery = qb
+                        .subQuery()
+                        .select('MAX(cs.snapshot_at)')
+                        .from(TopicContentSnapshot, 'cs')
+                        .where('cs.topic_id = content_snapshot.topic_id')
+                        .getQuery();
+                    return 'content_snapshot.snapshot_at = ' + subQuery;
+                })
+                .orderBy('topic.last_reply_at', 'DESC')
+                .limit(limit)
+                .cache(true)
+                .getMany();
+        },
+        catch:handleTypeORMErrorWithFucInfo('lib.combinators.database.topic.getLatestTopicContentSnapshot')
+    })
+
+
+/**
+ * 获取指定 topicId 的帖子内容快照
+ * @param topicId 
+ * @returns 
+ */
+export const getTopicContentSnapshotsByTopicId = (topicId:string) => 
     Effect.tryPromise({
         try:async () => {
             if(!GeneralContentDatasource.isInitialized){
@@ -165,17 +199,120 @@ export const getLatestTopicContentSnapshot = (limit:number) =>
             return await GeneralContentDatasource
                 .getRepository(TopicContentSnapshot)
                 .createQueryBuilder('snapshot')
-                .distinctOn(['snapshot.topic_id'])
-                .orderBy('snapshot.topic_id')
-                .addOrderBy('snapshot.snapshot_at', 'DESC')
-                .limit(limit)
+                .cache(true)
+                .where('snapshot.topic_id = :topicId', { topicId })
+                .orderBy('snapshot.snapshot_at', 'DESC')
                 .getMany()
         },
-        catch:handleTypeORMErrorWithFucInfo('lib.combinators.database.topic.getLatestTopicContentSnapshot')
+        catch:handleTypeORMErrorWithFucInfo('lib.combinators.database.topic.getTopicSnapshotsByTopicId')
     })
 
 
+/**
+ * 获取最新 XX 条的帖子信息，既包括帖子内容信息也包括对应的统计信息
+ * @param limit 
+ * @returns 
+ */
+export const getLatestTopicInfo = (limit:number) => 
+    Effect.tryPromise({
+        try:async () => {
+            if(!GeneralContentDatasource.isInitialized){
+                await GeneralContentDatasource.initialize()
+            }
+
+            return await GeneralContentDatasource
+                .getRepository(Topic)
+                .createQueryBuilder('topic')
+                .leftJoinAndSelect('topic.topic_content_snapshots', 'content_snapshot')
+                .leftJoinAndSelect('topic.topic_stat_snapshots', 'stat_snapshot')
+                .where(qb => {
+                    const contentSubQuery = qb
+                        .subQuery()
+                        .select('MAX(cs.snapshot_at)')
+                        .from(TopicContentSnapshot, 'cs')
+                        .where('cs.topic_id = content_snapshot.topic_id')
+                        .getQuery();
+                    return 'content_snapshot.snapshot_at = ' + contentSubQuery;
+                })
+                .andWhere(qb => {
+                    const statSubQuery = qb
+                        .subQuery()
+                        .select('MAX(ss.snapshot_at)')
+                        .from(TopicStatSnapshot, 'ss')
+                        .where('ss.topic_id = stat_snapshot.topic_id')
+                        .getQuery();
+                    return 'stat_snapshot.snapshot_at = ' + statSubQuery;
+                })
+                .orderBy('topic.last_reply_at', 'DESC')
+                .limit(limit)
+                .cache(true)
+                .getMany();
+        },
+        catch:handleTypeORMErrorWithFucInfo('lib.combinators.database.topic.getLatestTopicInfo')
+    })
+
+export const getTopicStatisticSnapshotsByTopicId = (topicId:string) => Effect.tryPromise({
+    try:async () => {
+        return await GeneralContentDatasource.getRepository(TopicStatSnapshot).find({where:{topic:{topic_id:topicId}}})
+    },
+    catch:handleTypeORMErrorWithFucInfo('lib.combinators.database.topic.getTopicStatisticSnapshotsByTopicId')
+})
+
+/**
+ * 获取指定用户发布的最新帖子信息，既包括帖子内容信息也包括对应的统计信息
+ * @param userUID 
+ * @returns 
+ */
+export const getLatestTopicInfoByUserUID = (userUID:string) => Effect.tryPromise({
+    try:async () => {
+        if(!GeneralContentDatasource.isInitialized){
+            await GeneralContentDatasource.initialize()
+        }
+        const reuslt = await GeneralContentDatasource
+            .getRepository(Topic)
+            .createQueryBuilder('topic')
+            .leftJoinAndSelect('topic.topic_content_snapshots', 'content_snapshot')
+            .leftJoinAndSelect('topic.topic_stat_snapshots', 'stat_snapshot')
+            .where('topic.author_uid = :userUID', { userUID })
+            .andWhere(qb => {
+                const contentSubQuery = qb
+                    .subQuery()
+                    .select('MAX(cs.snapshot_at)')
+                    .from(TopicContentSnapshot, 'cs')
+                    .where('cs.topic_id = content_snapshot.topic_id')
+                    .getQuery();
+                return 'content_snapshot.snapshot_at = ' + contentSubQuery;
+            })
+            .andWhere(qb => {
+                const statSubQuery = qb
+                    .subQuery()
+                    .select('MAX(ss.snapshot_at)')
+                    .from(TopicStatSnapshot, 'ss')
+                    .where('ss.topic_id = stat_snapshot.topic_id')
+                    .getQuery();
+                return 'stat_snapshot.snapshot_at = ' + statSubQuery;
+            })
+            .orderBy('topic.last_reply_at', 'DESC')
+            .cache(true)
+            .getMany();
+
+            return Array.from(reuslt.reduce((acc, curr) => {
+                // 如果 Map 中不存在该 topic_id 或者当前记录的 last_reply_at 更新，则更新 Map
+                const existingTopic = acc.get(curr.topic_id)
+                if (!existingTopic || curr.last_reply_at > existingTopic.topic.last_reply_at) {
+                    acc.set(curr.topic_id, {
+                        topic: curr,
+                        content_snapshot: curr.topic_content_snapshots[0],
+                        stat_snapshot: curr.topic_stat_snapshots[0]
+                    })
+                }
+                return acc
+            }, new Map()).values()) as Topic[]
+    },
+    catch:handleTypeORMErrorWithFucInfo('lib.combinators.database.topic.getLatestTopicInfoByUserUID')
+})
+
 if(fileURLToPath(import.meta.url) === path.resolve(process.argv[1]) || process.argv[1].includes('quokka-vscode')){
-    const result = await Effect.runPromise(getLatestTopicContentSnapshot(10))
+    const result = await Effect.runPromise(getLatestTopicInfoByUserUID('Beeeella0717'))
     console.log(result)
 }

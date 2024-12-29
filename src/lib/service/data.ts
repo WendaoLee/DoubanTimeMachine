@@ -5,6 +5,7 @@ import { CommentSyncQueueContext, SharedCommentSyncTaskQueue, theCommentSyncTask
 
 /**
  * 从豆瓣获取数据&存储数据&获取已存储的数据都通过该层进行数据的交互。
+ * 唉，写工程代码好烦啊啊啊啊啊
  */
 export class DataService extends Context.Tag('DataService')<
     DataService,

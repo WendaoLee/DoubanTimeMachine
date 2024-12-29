@@ -88,3 +88,46 @@ export const upsertUserSnapshotRecordIfNotExist = (userSnapshotFeature:UserSnaps
         },
         catch:handleTypeORMError
     })  
+
+/**
+ * 传入豆瓣id（不是uid），获取指定用户的最新快照
+ * @param doubanId 
+ * @returns 
+ */
+export const getUserLatestSnapshotByDoubanId = (doubanId:string) => Effect.tryPromise({
+    try:async () => {
+        if(!GeneralContentDatasource.isInitialized){
+            await GeneralContentDatasource.initialize()
+        }
+
+        return await GeneralContentDatasource.getRepository(UserSnapshot).findOne({where:{user:{douban_id:doubanId}},order:{snapshot_at:'DESC'},cache:true})
+    },
+    catch:handleTypeORMError
+})
+
+/**
+ * 传入豆瓣uid，获取指定用户的所有快照
+ * @param doubanUID 
+ * @returns 
+ */
+export const getUserSnapshotsByDoubanUID = (doubanUID:string) => Effect.tryPromise({
+    try:async () => {
+        if(!GeneralContentDatasource.isInitialized){
+            await GeneralContentDatasource.initialize()
+        }
+
+        return await GeneralContentDatasource.getRepository(UserSnapshot).find({where:{user_uid:doubanUID}})
+    },
+    catch:handleTypeORMError
+})
+
+export const getUserLatestSnapshotByDoubanUID = (doubanUID:string) => Effect.tryPromise({
+    try:async () => {
+        if(!GeneralContentDatasource.isInitialized){
+            await GeneralContentDatasource.initialize()
+        }
+
+        return await GeneralContentDatasource.getRepository(UserSnapshot).findOne({where:{user_uid:doubanUID},order:{snapshot_at:'DESC'}})
+    },
+    catch:handleTypeORMError
+})
