@@ -3,3 +3,4 @@ coverage/
 dist/
 .env
 repopack-output.txt
+logs/
