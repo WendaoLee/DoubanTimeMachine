@@ -9,6 +9,8 @@ import { TopicContentFeature } from "@/types/feature/TopicContentFeature.ts";
 import { TopicStatisticFeature } from "@/types/feature/TopicStatisticFeature.ts";
 import { handleTypeORMError } from "@/types/error/TypeORMWrappedError.ts";
 import { handleTypeORMErrorWithFucInfo } from "@/types/error/TypeORMWrappedError.ts";
+import { fileURLToPath } from "url";
+import path from "path";
 
 /**
  * 传入帖子相关的特征数据，新建对应的 Topic 索引记录
@@ -122,7 +124,7 @@ export const upsertTopicContentSnapshot = (topicContentFeature:TopicContentFeatu
                 .getOne()
 
             const needNewSnapshot = !latestSnapshot || 
-                latestSnapshot.last_edit_time !== topicContentFeature.topic_last_edited_at
+                latestSnapshot.last_edit_time.getTime() !== topicContentFeature.topic_last_edited_at.getTime()
 
             if(needNewSnapshot){
                 const newSnapshot = new TopicContentSnapshot()
@@ -147,3 +149,33 @@ export const upsertTopicContentSnapshot = (topicContentFeature:TopicContentFeatu
         },
         catch:handleTypeORMErrorWithFucInfo('lib.combinators.database.topic.upsertTopicContentSnapshot')
     })
+
+/**
+ * 获取最新 XX 条的帖子对应的快照记录
+ * @param limit 
+ * @returns 
+ */
+export const getLatestTopicContentSnapshot = (limit:number) => 
+    Effect.tryPromise({
+        try:async () => {
+            if(!GeneralContentDatasource.isInitialized){
+                await GeneralContentDatasource.initialize()
+            }
+
+            return await GeneralContentDatasource
+                .getRepository(TopicContentSnapshot)
+                .createQueryBuilder('snapshot')
+                .distinctOn(['snapshot.topic_id'])
+                .orderBy('snapshot.topic_id')
+                .addOrderBy('snapshot.snapshot_at', 'DESC')
+                .limit(limit)
+                .getMany()
+        },
+        catch:handleTypeORMErrorWithFucInfo('lib.combinators.database.topic.getLatestTopicContentSnapshot')
+    })
+
+
+if(fileURLToPath(import.meta.url) === path.resolve(process.argv[1]) || process.argv[1].includes('quokka-vscode')){
+    const result = await Effect.runPromise(getLatestTopicContentSnapshot(10))
+    console.log(result)
+}
