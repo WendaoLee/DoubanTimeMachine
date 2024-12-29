@@ -95,6 +95,3 @@ export const fetchRemainedTopicComments = (topicId: string, start: number) => Ef
 })
 
 
-const result = await Effect.runPromise(fetchAllTopicComments("266788909"))
-writeFileSync('./comments.json',JSON.stringify(result,null,2))
-
