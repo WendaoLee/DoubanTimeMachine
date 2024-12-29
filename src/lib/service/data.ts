@@ -37,9 +37,9 @@ export const DataServiceLive = Layer.effect(
     })
 ).pipe(
     Layer.provide(getLoggerServiceLive({
-        debug:'/logs/debug.log',
-        info:'/logs/info.log',
-        warn:'/logs/warn.log',
-        error:'/logs/error.log'
+        debug:'./logs/debug.log',
+        info:'./logs/info.log',
+        warn:'./logs/warn.log',
+        error:'./logs/error.log'
     }))
 )
